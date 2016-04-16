@@ -1,0 +1,58 @@
+<section>
+      VmInclude:__BASE__/vmiis/Common-Code/frame/excel_v2.html
+</section>
+<script>
+    function F__ID(){
+        //-------------------------------------
+        VmInclude:__BASE__/vmiis/Common-Code/frame/excel_v2.js
+        VmInclude:__BASE__/vmiis/Common-Code/style/ease-in-out.js
+        //-------------------------------------
+        _fields="Topic,Version,Short_Title,Contents,Color";
+        _fields+=",Submit Date|DateTime,Submitted by|Author";
+        //-------------------------------------
+        $('#D__ID').on('load',function(){  _set_req(); _request_data(); })
+        //-------------------------------------
+        _table_process=function(table){
+            table.Color={width:60, renderer:function(instance, td, row, col, prop, value, cellProperties){
+        		//if(value===undefined || value===null){ value="#ffffff";}
+                //if(value==="") value="#ffffff";
+        	    $(td).html("<input type=color value='"+value+"' style='border: 0px solid; background-color:#ffffff' />");
+        	    $(td).find('input').on('change',function(){ $("#excel__ID").handsontable("setDataAtCell", row, col, this.value); });
+                return td;
+            }};
+            //-------------------------------------
+        }
+        //-------------------------------------
+        _before_submit=function(record,dbv){
+            var parent_pid=$vm.module_list['topic'][0];
+            var puid=record.PUID;
+            if(puid===null || puid===undefined) puid=$vm.vm['__ID'].op.puid;
+            if(puid===null || puid===undefined){
+                alert("No parent");
+                return false;
+            }
+    		dbv.PPID=parent_pid;
+    		dbv.PUID=puid;
+            dbv.S1=record.Short_Title;
+            return true;
+        };
+        //-------------------------------------
+        _new_pre_data_process=function(){
+            var topic=$vm.vm['__ID'].op.topic;
+            var version=$vm.vm['__ID'].op.version;
+            $("#excel__ID").handsontable("setDataAtCell", 0, 0, topic);
+            $("#excel__ID").handsontable("setDataAtCell", 0, 1, version);
+            $("#excel__ID").handsontable("setDataAtCell", 0, 4, "#008800");
+        };
+        //-------------------------------------
+        _set_req=function(){
+            if($vm.vm['__ID'].op.sql_where==="") $('#new__ID').hide();
+            else $('#new__ID').show();
+            _set_req_with_sql_where();
+        }
+        //-------------------------------------
+    }
+</script>
+<style>
+    VmInclude:__BASE__/vmiis/Common-Code/style/default.css
+</style>

@@ -1,0 +1,40 @@
+<section>
+    <div id=toolbar__ID>
+        <a id=back__ID>Back</a><span class=tab__ID></span><span id=name__ID></span>
+    </div>
+    <div style='clear:left;'>
+        <div class='nav__ID'>
+            <span>Topics</span>
+            <ul>
+                <li data-name=topic>Topics</li>
+            </ul>
+            <br>
+            <span>Topic child records</span>
+            <ul>
+                <li data-name=file data-op={"sql_where":""} >Files</li>
+                <li data-name=discussion data-op={"sql_where":""} >Discussions</li>
+            </ul>
+            <br>
+            <br>
+            <br>
+        </div>
+    </div>
+    <div style='padding:30px;font-size:9px;color:#888;width:300px'>
+    </div>
+</section>
+<script>
+    function F__ID(){
+        //---------------------------------------------
+        var content_slot=$vm.root_layout_content_slot;
+        VmInclude:__BASE__/vmiis/Common-Code/navigation/navigation.js
+        VmInclude:__BASE__/vmiis/Common-Code/style/ease-in-out.js
+        //---------------------------------------------
+        $('#D__ID').on('load',function(){
+            _set_permissions();
+        });
+        //---------------------------------------------
+    }
+</script>
+<style>
+    VmInclude:__BASE__/vmiis/Common-Code/navigation/navigation.css
+</style>

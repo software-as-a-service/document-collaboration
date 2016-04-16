@@ -1,0 +1,67 @@
+<section>
+    VmInclude:__BASE__/vmiis/Common-Code/frame/excel_v2.html
+</section>
+<script>
+    function F__ID(){
+        //-------------------------------------
+        VmInclude:__BASE__/vmiis/Common-Code/frame/excel_v2.js
+        VmInclude:__BASE__/vmiis/Common-Code/style/ease-in-out.js
+        //-------------------------------------
+        _fields="Name,File|I2_Document,Version|I2_Version,All Files|all_files,Discussion|NT"; //,I3_Color,fileID
+        _fields+=",Submit Date|DateTime,Submitted by|Author,Hidden|fileID,Hidden|I3_Color";
+        //-------------------------------------
+        _table_process=function(table){
+            table.I2_Document={width:200,readOnly:true,renderer:function(instance, td, row, col, prop, value, cellProperties){
+                if(_records[row]!==undefined){
+                    $vm.file_link({td:td,rid:_records[row].fileID,value:value});
+                }
+                return td;
+            }};
+            table.all_files={renderer:function(instance, td, row, col, prop, value, cellProperties){
+                if(value===null || value===undefined || value==="" || _records[row]===undefined){ td.innerHTML=""; return td;}
+                td.innerHTML="<u style='cursor:pointer'>Files</u>";
+                $(td).find('u').on('click',function(){
+                    $vm.load_module_by_name('file',$vm.root_layout_content_slot,{sql_where:'puid='+uid,puid:uid,topic:_records[row].Name});
+                });
+                return td;
+            }};
+            //-------------------------------------
+            table.NT={renderer:function(instance, td, row, col, prop, value, cellProperties){
+                if(value===null || value===undefined || value==="" || _records[row]===undefined){ td.innerHTML=""; return td;}
+                var discussion=_records[row].NT;      if(discussion==="") discussion="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                var color=_records[row].I3_Color;     if(color==='') color='#000';
+                td.innerHTML="<u style='cursor:pointer;color:"+color+"'>"+discussion+"</u>";
+                $(td).find('u').on('click',function(){
+                    $vm.load_module_by_name('discussion',$vm.root_layout_content_slot,{sql_where:'puid='+uid,puid:uid,topic:_records[row].Name,version:_records[row].I2_Version});
+                });
+                return td;
+            }};
+            //-------------------------------------
+        }
+        //-------------------------------------
+        $('#D__ID').on('load',function(){  _set_req(); _request_data();  })
+        $('#D__ID').on('back',function(){  _set_req(); _request_data();  })
+        //-------------------------------------
+        _set_req=function(){
+            var file_pid=$vm.module_list['file'][0];
+            var discussion_pid=$vm.module_list['discussion'][0];
+            var sql_n="select count(ID) from [FORM-"+_db_pid+"-@S1]";
+            var sql="with topic as (select ID,UID,Information,DateTime,Author,RowNum=row_number() over (order by ID DESC) from [FORM-"+_db_pid+"-@S1])";
+            sql+="select * into #A from topic where RowNum between @I6 and @I7;";
+            sql+="with topic as (select * from #A) ";
+            sql+=",[file] as (select fileID=ID,filepuid=PUID,Information2=Information,F_RowNum=row_number() over (PARTITION BY PUID order by ID DESC) from [FORM-"+file_pid+"] where ppid="+_db_pid+")";
+            sql+=",discussion as (select discussionpuid=PUID,NT=S1+' ('+Author+')', Information3=Information,D_RowNum=row_number() over (PARTITION BY PUID order by ID DESC) from [FORM-"+discussion_pid+"] where ppid="+_db_pid+")";
+            sql+=" select ID,UID,fileID,all_files=UID,NT,Information,Information2,Information3,DateTime,Author";
+            sql+=" from topic left join discussion on UID=discussionpuid and D_RowNum=1 left join [file] on UID=filepuid and F_RowNum=1";
+
+            //var sql="with tb as (select Information,ID,UID,DateTime,Author,RowNum=row_number() over (order by ID DESC) from [TABLE-"+_db_pid+"-@S1] )";
+            //sql+="select Information,ID,UID,DateTime,Author,RowNum from tb where RowNum between @I6 and @I7";
+            //var sql_n="select count(ID) from [TABLE-"+_db_pid+"-@S1]";
+            _req={cmd:'query_records',sql:sql,sql_n:sql_n,s1:'"'+$('#keyword__ID').val()+'"',I:$('#I__ID').text(),page_size:$('#page_size__ID').val()}
+        }
+        //-------------------------------------
+    }
+</script>
+<style>
+    VmInclude:__BASE__/vmiis/Common-Code/style/default.css
+</style>
